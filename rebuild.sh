@@ -14,7 +14,7 @@
 set -euo pipefail
 
 # --- Configuration ---------------------------------------------------------
-INFRA_DIR="$HOME/infra"
+INFRA_DIR="$HOME/DBTools"
 TOFU_DIR="$INFRA_DIR/opentofu"
 ANSIBLE_DIR="$INFRA_DIR/ansible"
 ENV_FILE="$INFRA_DIR/.env"
