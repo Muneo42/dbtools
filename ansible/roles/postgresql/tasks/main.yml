@@ -1,0 +1,56 @@
+---
+- name: Installer PostgreSQL et le module Python pour Ansible
+  ansible.builtin.apt:
+    name:
+      - postgresql
+      - python3-psycopg2
+    state: present
+    update_cache: true
+
+- name: S'assurer que PostgreSQL tourne et démarre au boot
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: true
+
+- name: Détecter le répertoire de conf PostgreSQL
+  ansible.builtin.shell: >
+    ls -d /etc/postgresql/*/main | head -n1
+  register: pg_confdir
+  changed_when: false
+
+- name: Faire écouter PostgreSQL sur le réseau
+  ansible.builtin.lineinfile:
+    path: "{{ pg_confdir.stdout }}/postgresql.conf"
+    regexp: "^#?listen_addresses"
+    line: "listen_addresses = '*'"
+  notify: Redémarrer PostgreSQL
+
+- name: Autoriser le LXC dbtools (.160) dans pg_hba.conf
+  ansible.builtin.lineinfile:
+    path: "{{ pg_confdir.stdout }}/pg_hba.conf"
+    line: "host    all    dbtools    192.168.1.160/32    scram-sha-256"
+    state: present
+  notify: Redémarrer PostgreSQL
+
+# Force l'exécution des redémarrages ICI, avant les tâches qui ont besoin
+# que Postgres écoute sur le réseau — plutôt qu'à la fin du play.
+- name: Appliquer les redémarrages en attente
+  ansible.builtin.meta: flush_handlers
+
+- name: Créer l'utilisateur dbtools
+  community.postgresql.postgresql_user:
+    name: dbtools
+    password: "{{ dbtools_db_password }}"
+    role_attr_flags: CREATEDB,LOGIN
+  become: true
+  become_user: postgres
+  become_method: su
+
+- name: Créer la base testdb appartenant à dbtools
+  community.postgresql.postgresql_db:
+    name: testdb
+    owner: dbtools
+  become: true
+  become_user: postgres
+  become_method: su

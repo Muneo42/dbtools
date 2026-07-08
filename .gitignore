@@ -1,0 +1,13 @@
+# State OpenTofu — contient des secrets en clair, JAMAIS dans Git
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Variables sensibles
+*.tfvars
+secrets.auto.tfvars
+
+# Fichiers d'env
+.env
+.vault_pass

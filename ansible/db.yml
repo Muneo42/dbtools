@@ -1,0 +1,15 @@
+---
+- name: Configurer MariaDB
+  hosts: mariadb
+  roles:
+    - mariadb
+
+- name: Configurer PostgreSQL
+  hosts: postgresql
+  roles:
+    - postgresql
+
+- name: Configurer dbtools
+  hosts: dbtools
+  roles:
+    - dbtools

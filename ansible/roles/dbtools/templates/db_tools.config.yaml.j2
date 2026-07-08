@@ -1,0 +1,12 @@
+# Généré par Ansible — ne pas éditer à la main
+# Mode standalone : options à la racine (pas de clé db_tools:)
+storage:
+    root_dir: "/opt/dbtools/var"
+
+connections:
+    mariadb:
+        url: "pdo-mysql://dbtools:{{ dbtools_db_password }}@192.168.1.161:3306/testdb"
+    postgresql:
+        url: "pdo-pgsql://dbtools:{{ dbtools_db_password }}@192.168.1.162:5432/testdb"
+
+default_connection: mariadb

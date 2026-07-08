@@ -1,0 +1,57 @@
+---
+- name: Installer PHP 8.4, extensions, Composer et clients DB
+  ansible.builtin.apt:
+    name:
+      - php-cli
+      - php-mbstring
+      - php-xml
+      - php-curl
+      - php-mysql
+      - php-pgsql
+      - composer
+      - git
+      - unzip
+      - mariadb-client
+      - postgresql-client
+    state: present
+    update_cache: true
+
+- name: Créer le répertoire projet
+  ansible.builtin.file:
+    path: /opt/dbtools
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Déposer un composer.json (db-tools + Symfony console épinglé en 7)
+  ansible.builtin.copy:
+    dest: /opt/dbtools/composer.json
+    content: |
+      {
+          "name": "ambudot/dbtools-eval",
+          "require": {
+              "makinacorpus/db-tools-bundle": "^2.2",
+              "symfony/console": "^7.0"
+          },
+          "config": {
+              "allow-plugins": true
+          }
+      }
+    mode: "0644"
+
+- name: Installer les dépendances (rétrograde le transitif si besoin)
+  ansible.builtin.command:
+    cmd: composer update --no-interaction --with-all-dependencies --working-dir=/opt/dbtools
+  environment:
+    COMPOSER_ALLOW_SUPERUSER: "1"
+  args:
+    creates: /opt/dbtools/vendor/makinacorpus/db-tools-bundle
+
+- name: Déposer la configuration db_tools (2 connexions, format standalone)
+  ansible.builtin.template:
+    src: db_tools.config.yaml.j2
+    dest: /opt/dbtools/db_tools.config.yaml
+    owner: root
+    group: root
+    mode: "0640"
