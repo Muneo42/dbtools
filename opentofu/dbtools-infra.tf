@@ -71,32 +71,6 @@ resource "proxmox_virtual_environment_container" "db" {
   }
 }
 
-resource "proxmox_virtual_environment_vm" "gitlab" {
-  name      = "gitlab"
-  node_name = "pve"
-  vm_id     = 203
-
-  clone {
-    vm_id = 242
-    full  = true
-  }
-
-  cpu {
-    cores = 4
-    type  = "host"
-  }
-
-  memory {
-    dedicated = 8192
-  }
-
-  agent {
-    enabled = true
-  }
-
-  started = true
-}
-
 output "lxc_ips" {
   value = { for k, c in local.containers : k => c.ip }
 }
