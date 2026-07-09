@@ -90,10 +90,10 @@ Le fichier `group_vars/all.yml` **est** versionné : il est chiffré, donc sans 
 ### Tout construire
 
 ```bash
-cd ~/infra/opentofu && source ../.env
+cd ~/DBTools/opentofu && source ../.env
 tofu apply -target='proxmox_virtual_environment_container.db'
 
-cd ~/infra/ansible
+cd ~/DBTools/ansible
 ansible-playbook db.yml
 ```
 
